@@ -21,6 +21,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditAnywhere, Category = "Spawning")
+	TSubclassOf<class APickUp> WhatToSpawn;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -30,6 +33,9 @@ public:
 	// Find random point
 	UFUNCTION(BlueprintPure, Category = "Spawning")
 	FVector GetRandomPointsInVolume();
+
+	//UFUNCTION()
+	void SpawnPickup();
 
 private:
 	// Box Component to specify where pickups will be spawned
