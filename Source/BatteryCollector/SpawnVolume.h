@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Public/TimerManager.h"
+#include "Pickup.h"
 #include "SpawnVolume.generated.h"
 
 using namespace UF;
@@ -24,11 +26,28 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Spawning")
 	TSubclassOf<class APickUp> WhatToSpawn;
 
+	FTimerHandle SpawnTimer;
+
+	//Min and max spawn delays
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+	float SpawnDelayRangeLow;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+	float SpawnDelayRangeHigh;
+
+private:
+	// Box Component to specify where pickups will be spawned
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning", meta = (AllowPrivateAccess = "true"))
+		class UBoxComponent* WhereToSpawn;
+
+	float SpawnDelay;
+
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	FORCEINLINE class UBoxComponent* GetWhereToSpawn() const { return WhereToSpawn; }
+	FORCEINLINE class UBoxComponent* GetWhereToSpawn() const { return WhereToSpawn; };
 
 	// Find random point
 	UFUNCTION(BlueprintPure, Category = "Spawning")
@@ -36,10 +55,4 @@ public:
 
 	//UFUNCTION()
 	void SpawnPickup();
-
-private:
-	// Box Component to specify where pickups will be spawned
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning", meta = (AllowPrivateAccess = "true"))
-	class UBoxComponent* WhereToSpawn;
-
 };

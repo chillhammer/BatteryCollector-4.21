@@ -15,6 +15,8 @@ ASpawnVolume::ASpawnVolume()
 	WhereToSpawn = CreateDefaultSubobject<UBoxComponent>(TEXT("WhereToSpawn"));
 	RootComponent = WhereToSpawn;
 
+	SpawnDelayRangeLow = 1.f;
+	SpawnDelayRangeHigh = 4.5f;
 }
 
 // Called when the game starts or when spawned
@@ -22,6 +24,8 @@ void ASpawnVolume::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	SpawnDelay = FMath::RandRange(SpawnDelayRangeLow, SpawnDelayRangeHigh);
+	GetWorldTimerManager().SetTimer(SpawnTimer, this, &ASpawnVolume::SpawnPickup, SpawnDelay, false);
 }
 
 // Called every frame
@@ -59,6 +63,9 @@ void ASpawnVolume::SpawnPickup()
 			SpawnRotation.Pitch = FMath::Rand() * 360.0f;
 
 			World->SpawnActor<APickUp>(WhatToSpawn, SpawnLocation, SpawnRotation, SpawnParam);
+			
+			SpawnDelay = FMath::RandRange(SpawnDelayRangeLow, SpawnDelayRangeHigh);
+			GetWorldTimerManager().SetTimer(SpawnTimer, this, &ASpawnVolume::SpawnPickup, SpawnDelay, false);
 		}
 	}
 }
