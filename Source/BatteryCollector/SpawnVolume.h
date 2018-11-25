@@ -8,7 +8,7 @@
 #include "Pickup.h"
 #include "SpawnVolume.generated.h"
 
-using namespace UF;
+//using namespace UF;
 
 UCLASS()
 class BATTERYCOLLECTOR_API ASpawnVolume : public AActor
@@ -24,7 +24,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, Category = "Spawning")
-	TSubclassOf<class APickUp> WhatToSpawn;
+	TSubclassOf<class APickup> WhatToSpawn;
 
 	FTimerHandle SpawnTimer;
 

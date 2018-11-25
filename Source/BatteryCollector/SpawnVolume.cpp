@@ -62,7 +62,7 @@ void ASpawnVolume::SpawnPickup()
 			SpawnRotation.Roll = FMath::Rand() * 360.0f;
 			SpawnRotation.Pitch = FMath::Rand() * 360.0f;
 
-			World->SpawnActor<APickUp>(WhatToSpawn, SpawnLocation, SpawnRotation, SpawnParam);
+			World->SpawnActor<APickup>(WhatToSpawn, SpawnLocation, SpawnRotation, SpawnParam);
 			
 			SpawnDelay = FMath::RandRange(SpawnDelayRangeLow, SpawnDelayRangeHigh);
 			GetWorldTimerManager().SetTimer(SpawnTimer, this, &ASpawnVolume::SpawnPickup, SpawnDelay, false);
