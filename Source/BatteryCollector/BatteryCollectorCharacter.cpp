@@ -6,6 +6,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/InputComponent.h"
+#include "Pickup.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -63,6 +64,8 @@ void ABatteryCollectorCharacter::SetupPlayerInputComponent(class UInputComponent
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
+	PlayerInputComponent->BindAction("Collect", IE_Pressed, this, &ABatteryCollectorCharacter::CollectPickups);
+
 	PlayerInputComponent->BindAxis("MoveForward", this, &ABatteryCollectorCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABatteryCollectorCharacter::MoveRight);
 
@@ -80,6 +83,22 @@ void ABatteryCollectorCharacter::SetupPlayerInputComponent(class UInputComponent
 
 	// VR headset functionality
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &ABatteryCollectorCharacter::OnResetVR);
+}
+
+void ABatteryCollectorCharacter::CollectPickups()
+{
+	//Get all overlapping actors
+	TArray<AActor*> CollectedActors;
+	CollectionSphere->GetOverlappingActors(CollectedActors);
+
+	for (int32 iCollected = 0; iCollected < CollectedActors.Num(); ++iCollected) {
+		APickup* const TestPickup = Cast<APickup>(CollectedActors[iCollected]);
+
+		if (TestPickup && !TestPickup->IsPendingKill() && TestPickup->IsActive()) {
+			TestPickup->WasCollected();
+			TestPickup->SetActive(false);
+		}
+	}
 }
 
 
