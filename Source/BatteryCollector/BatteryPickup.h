@@ -19,4 +19,10 @@ public:
 	ABatteryPickup();
 
 	void WasCollected_Implementation() override;
+
+	float GetPower();
+protected:
+	//Sets amount of power to give to player
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power", Meta = (BlueprintProtected = "true"))
+	float BatteryPower;
 };
