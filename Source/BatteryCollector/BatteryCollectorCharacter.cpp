@@ -7,6 +7,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/InputComponent.h"
 #include "Pickup.h"
+#include "BatteryPickup.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -69,7 +70,7 @@ float ABatteryCollectorCharacter::GetCurrentPower()
 
 void ABatteryCollectorCharacter::UpdatePower(float PowerChange)
 {
-	CurrentPower = PowerChange;
+	CurrentPower += PowerChange;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -109,13 +110,23 @@ void ABatteryCollectorCharacter::CollectPickups()
 	TArray<AActor*> CollectedActors;
 	CollectionSphere->GetOverlappingActors(CollectedActors);
 
+	float CollectedPower = 0;
+
 	for (int32 iCollected = 0; iCollected < CollectedActors.Num(); ++iCollected) {
 		APickup* const TestPickup = Cast<APickup>(CollectedActors[iCollected]);
 
 		if (TestPickup && !TestPickup->IsPendingKill() && TestPickup->IsActive()) {
 			TestPickup->WasCollected();
 			TestPickup->SetActive(false);
+
+			ABatteryPickup* const TestBattery = Cast<ABatteryPickup>(TestPickup);
+			if (TestBattery) {
+				CollectedPower += TestBattery->GetPower();
+			}
 		}
+	}
+	if (CollectedPower > 0) {
+		UpdatePower(CollectedPower);
 	}
 }
 

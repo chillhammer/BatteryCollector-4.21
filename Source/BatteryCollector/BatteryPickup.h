@@ -23,6 +23,6 @@ public:
 	float GetPower();
 protected:
 	//Sets amount of power to give to player
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power", Meta = (BlueprintProtected = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power", meta = (BlueprintProtected = "true"))
 	float BatteryPower;
 };
