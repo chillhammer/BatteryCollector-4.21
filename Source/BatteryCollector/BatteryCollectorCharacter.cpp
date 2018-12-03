@@ -125,6 +125,7 @@ void ABatteryCollectorCharacter::CollectPickups()
 			}
 		}
 	}
+	//Make sure negative values don't get inputted
 	if (CollectedPower > 0) {
 		UpdatePower(CollectedPower);
 	}
