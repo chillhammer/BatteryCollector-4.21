@@ -80,8 +80,17 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Pickups")
 	void CollectPickups();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power", meta = (BlueprintProtected = "true"))
 	float InitialPower;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	float SpeedFactor;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	float BaseSpeed;
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Power")
+	void PowerChangeEffect();
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Power")

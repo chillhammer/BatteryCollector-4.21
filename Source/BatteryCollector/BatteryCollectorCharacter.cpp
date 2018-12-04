@@ -56,6 +56,9 @@ ABatteryCollectorCharacter::ABatteryCollectorCharacter()
 
 	InitialPower = 2000.f;
 	CurrentPower = InitialPower;
+
+	SpeedFactor = 0.75f;
+	BaseSpeed = 10.f;
 }
 
 float ABatteryCollectorCharacter::GetInitialPower()
@@ -70,7 +73,10 @@ float ABatteryCollectorCharacter::GetCurrentPower()
 
 void ABatteryCollectorCharacter::UpdatePower(float PowerChange)
 {
+
 	CurrentPower += PowerChange;
+	GetCharacterMovement()->MaxWalkSpeed = BaseSpeed + SpeedFactor * CurrentPower;
+	PowerChangeEffect();
 }
 
 //////////////////////////////////////////////////////////////////////////
