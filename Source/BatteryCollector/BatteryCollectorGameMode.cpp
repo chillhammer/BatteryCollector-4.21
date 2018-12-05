@@ -4,6 +4,7 @@
 #include "BatteryCollectorCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Kismet/GameplayStatics.h"
+#include "Blueprint/UserWidget.h"
 
 ABatteryCollectorGameMode::ABatteryCollectorGameMode()
 {
@@ -15,6 +16,27 @@ ABatteryCollectorGameMode::ABatteryCollectorGameMode()
 	}
 	PrimaryActorTick.bCanEverTick = true;
 	DecayRate = 0.01f;
+}
+
+float ABatteryCollectorGameMode::GetPowerToWin() const
+{
+	return PowerToWin;
+}
+
+void ABatteryCollectorGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+	ABatteryCollectorCharacter* MyCharacter = Cast<ABatteryCollectorCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
+	if (MyCharacter) {
+		PowerToWin = MyCharacter->GetInitialPower() * 1.25f;
+	}
+
+	if (HUDWidgetClass != nullptr) {
+		CurrentWidget = CreateWidget<UUserWidget>(GetWorld(), HUDWidgetClass);
+		if (CurrentWidget != nullptr) {
+			CurrentWidget->AddToViewport();
+		}
+	}
 }
 
 void ABatteryCollectorGameMode::Tick(float DeltaTime)
