@@ -6,6 +6,15 @@
 #include "GameFramework/GameModeBase.h"
 #include "BatteryCollectorGameMode.generated.h"
 
+UENUM(BlueprintType)
+enum class EBatteryPlayState : uint8 
+{ 
+	EPlaying UMETA(DisplayName = "Playing"), 
+	EGameOver UMETA(DisplayName = "GameOver"), 
+	EWon UMETA(DisplayName = "Won"), 
+	EUnknown UMETA(DisplayName = "Unknown") 
+};
+
 UCLASS(minimalapi)
 class ABatteryCollectorGameMode : public AGameModeBase
 {
@@ -20,6 +29,11 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaTime) override;
+
+	UFUNCTION(BlueprintPure, Category = "Power")
+	EBatteryPlayState GetCurrentState() const;
+
+	void SetCurrentState(EBatteryPlayState NewState);
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Power", meta = (BlueprintProtected = "true"))
@@ -34,6 +48,11 @@ protected:
 
 	UPROPERTY()
 	class UUserWidget* CurrentWidget;
+private:
+
+	EBatteryPlayState CurrentState;
+
+	TArray<class ASpawnVolume*> SpawnVolumeActors;
 };
 
 

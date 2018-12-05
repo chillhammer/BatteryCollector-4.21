@@ -24,8 +24,17 @@ void ASpawnVolume::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	SpawnDelay = FMath::RandRange(SpawnDelayRangeLow, SpawnDelayRangeHigh);
-	GetWorldTimerManager().SetTimer(SpawnTimer, this, &ASpawnVolume::SpawnPickup, SpawnDelay, false);
+}
+
+void ASpawnVolume::SetSpawningActive(bool bShouldSpawn)
+{
+	if (bShouldSpawn) {
+		SpawnDelay = FMath::RandRange(SpawnDelayRangeLow, SpawnDelayRangeHigh);
+		GetWorldTimerManager().SetTimer(SpawnTimer, this, &ASpawnVolume::SpawnPickup, SpawnDelay, false);
+	}
+	else {
+		GetWorldTimerManager().ClearTimer(SpawnTimer);
+	}
 }
 
 // Called every frame

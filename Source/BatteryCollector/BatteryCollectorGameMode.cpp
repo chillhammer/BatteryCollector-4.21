@@ -5,6 +5,7 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
+#include "SpawnVolume.h"
 
 ABatteryCollectorGameMode::ABatteryCollectorGameMode()
 {
@@ -26,6 +27,7 @@ float ABatteryCollectorGameMode::GetPowerToWin() const
 void ABatteryCollectorGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+	SetCurrentState(EBatteryPlayState::EPlaying);
 	ABatteryCollectorCharacter* MyCharacter = Cast<ABatteryCollectorCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
 	if (MyCharacter) {
 		PowerToWin = MyCharacter->GetInitialPower() * 1.25f;
@@ -37,6 +39,17 @@ void ABatteryCollectorGameMode::BeginPlay()
 			CurrentWidget->AddToViewport();
 		}
 	}
+
+	//Find all spawn volume actors
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpawnVolume::StaticClass(), FoundActors);
+
+	for (auto Actor : FoundActors) {
+		ASpawnVolume* SpawnVolumeActor = Cast<ASpawnVolume>(Actor);
+		if (SpawnVolumeActor) {
+			SpawnVolumeActors.AddUnique(SpawnVolumeActor);
+		}
+	}
 }
 
 void ABatteryCollectorGameMode::Tick(float DeltaTime)
@@ -44,8 +57,27 @@ void ABatteryCollectorGameMode::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	ABatteryCollectorCharacter* MyCharacter = Cast<ABatteryCollectorCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
 	if (MyCharacter) {
-		if (MyCharacter->GetCurrentPower() > 0) {
+
+		//Win Condition
+		if (MyCharacter->GetCurrentPower() > PowerToWin) {
+			SetCurrentState(EBatteryPlayState::EWon);
+		}
+		//Decay Power
+		else if (MyCharacter->GetCurrentPower() > 0) {
 			MyCharacter->UpdatePower(-DeltaTime * DecayRate*(MyCharacter->GetInitialPower()));
 		}
+		else {
+			SetCurrentState(EBatteryPlayState::EGameOver);
+		}
 	}
+}
+
+EBatteryPlayState ABatteryCollectorGameMode::GetCurrentState() const
+{
+	return CurrentState;
+}
+
+void ABatteryCollectorGameMode::SetCurrentState(EBatteryPlayState NewState)
+{
+	CurrentState = NewState;
 }
