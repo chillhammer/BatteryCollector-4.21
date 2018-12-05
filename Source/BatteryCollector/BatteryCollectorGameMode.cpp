@@ -1,4 +1,4 @@
-// Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
+﻿// Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
 
 #include "BatteryCollectorGameMode.h"
 #include "BatteryCollectorCharacter.h"
@@ -6,6 +6,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
 #include "SpawnVolume.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "GameFramework/PawnMovementComponent.h"
+
 
 ABatteryCollectorGameMode::ABatteryCollectorGameMode()
 {
@@ -16,7 +19,7 @@ ABatteryCollectorGameMode::ABatteryCollectorGameMode()
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
 	PrimaryActorTick.bCanEverTick = true;
-	DecayRate = 0.01f;
+	DecayRate = 0.13f;
 }
 
 float ABatteryCollectorGameMode::GetPowerToWin() const
@@ -27,6 +30,18 @@ float ABatteryCollectorGameMode::GetPowerToWin() const
 void ABatteryCollectorGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+
+	//Find all spawn volume actors
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpawnVolume::StaticClass(), FoundActors);
+
+	for (auto Actor : FoundActors) {
+		ASpawnVolume* SpawnVolumeActor = Cast<ASpawnVolume>(Actor);
+		if (SpawnVolumeActor) {
+			SpawnVolumeActors.AddUnique(SpawnVolumeActor);
+		}
+	}
+
 	SetCurrentState(EBatteryPlayState::EPlaying);
 	ABatteryCollectorCharacter* MyCharacter = Cast<ABatteryCollectorCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
 	if (MyCharacter) {
@@ -37,17 +52,6 @@ void ABatteryCollectorGameMode::BeginPlay()
 		CurrentWidget = CreateWidget<UUserWidget>(GetWorld(), HUDWidgetClass);
 		if (CurrentWidget != nullptr) {
 			CurrentWidget->AddToViewport();
-		}
-	}
-
-	//Find all spawn volume actors
-	TArray<AActor*> FoundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpawnVolume::StaticClass(), FoundActors);
-
-	for (auto Actor : FoundActors) {
-		ASpawnVolume* SpawnVolumeActor = Cast<ASpawnVolume>(Actor);
-		if (SpawnVolumeActor) {
-			SpawnVolumeActors.AddUnique(SpawnVolumeActor);
 		}
 	}
 }
@@ -80,4 +84,42 @@ EBatteryPlayState ABatteryCollectorGameMode::GetCurrentState() const
 void ABatteryCollectorGameMode::SetCurrentState(EBatteryPlayState NewState)
 {
 	CurrentState = NewState;
+	HandleNewState(NewState);
+}
+
+void ABatteryCollectorGameMode::HandleNewState(EBatteryPlayState NewState)
+{
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+	ACharacter* MyCharacter = UGameplayStatics::GetPlayerCharacter(this, 0);
+
+	switch (NewState) {
+		case EBatteryPlayState::EPlaying:
+			for (ASpawnVolume* Volume : SpawnVolumeActors) {
+				Volume->SetSpawningActive(true);
+			}
+			break;
+		case EBatteryPlayState::EWon:
+			for (ASpawnVolume* Volume : SpawnVolumeActors) {
+				Volume->SetSpawningActive(false);
+			}
+
+			break;
+		case EBatteryPlayState::EGameOver:
+			for (ASpawnVolume* Volume : SpawnVolumeActors) {
+				Volume->SetSpawningActive(false);
+			}
+
+			if (PlayerController) {
+				PlayerController->SetCinematicMode(true, false, false, true, true);
+			}
+			if (MyCharacter) {
+				MyCharacter->GetMesh()->SetSimulatePhysics(true);
+				MyCharacter->GetMovementComponent()->MovementState.bCanJump = false;
+			}
+
+			break;
+		case EBatteryPlayState::EUnknown:
+
+			break;
+	}
 }

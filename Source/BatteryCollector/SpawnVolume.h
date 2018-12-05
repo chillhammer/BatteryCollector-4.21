@@ -35,8 +35,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
 	float SpawnDelayRangeHigh;
 
-	UFUNCTION(BlueprintCallable, Category = "Spawning")
-	void SetSpawningActive(bool bShouldSpawn);
 
 private:
 	// Box Component to specify where pickups will be spawned
@@ -58,4 +56,7 @@ public:
 
 	//UFUNCTION()
 	void SpawnPickup();
+
+	UFUNCTION(BlueprintCallable, Category = "Spawning")
+	void SetSpawningActive(bool bShouldSpawn);
 };
